@@ -38,9 +38,9 @@ func ServeAPI(ginServer *gin.Engine) {
 	ginServer.Handle("POST", "/api/system/loginAuth", model.LoginAuth)
 	ginServer.Handle("POST", "/api/system/logoutAuth", model.LogoutAuth)
 	ginServer.Handle("GET", "/api/system/getCaptcha", model.GetCaptcha)
-	ginServer.Handle("GET", "/api/icon/getDynamicIcon", getDynamicIcon)
-
 	// 需要鉴权
+
+	ginServer.Handle("GET", "/api/icon/getDynamicIcon", model.CheckAuth, getDynamicIcon)
 
 	ginServer.Handle("POST", "/api/system/getEmojiConf", model.CheckAuth, getEmojiConf)
 	ginServer.Handle("POST", "/api/system/setAPIToken", model.CheckAuth, model.CheckAdminRole, model.CheckReadonly, setAPIToken)
@@ -284,6 +284,7 @@ func ServeAPI(ginServer *gin.Engine) {
 	ginServer.Handle("POST", "/api/attr/batchGetBlockAttrs", model.CheckAuth, batchGetBlockAttrs)
 
 	ginServer.Handle("POST", "/api/cloud/getCloudSpace", model.CheckAuth, model.CheckAdminRole, getCloudSpace)
+	ginServer.Handle("POST", "/api/cloud/setCloudReminder", model.CheckAuth, model.CheckAdminRole, model.CheckReadonly, setCloudReminder)
 
 	ginServer.Handle("POST", "/api/sync/setSyncEnable", model.CheckAuth, model.CheckAdminRole, model.CheckReadonly, setSyncEnable)
 	ginServer.Handle("POST", "/api/sync/setSyncInterval", model.CheckAuth, model.CheckAdminRole, model.CheckReadonly, setSyncInterval)
@@ -523,6 +524,9 @@ func ServeAPI(ginServer *gin.Engine) {
 
 	ginServer.Handle("POST", "/api/ai/chatGPT", model.CheckAuth, model.CheckAdminRole, chatGPT)
 	ginServer.Handle("POST", "/api/ai/chatGPTWithAction", model.CheckAuth, model.CheckAdminRole, chatGPTWithAction)
+	ginServer.Handle("POST", "/api/ai/agent/chat", model.CheckAuth, model.CheckAdminRole, agentChat)
+	ginServer.Handle("POST", "/api/ai/agent/confirm", model.CheckAuth, model.CheckAdminRole, agentChatConfirm)
+	ginServer.Handle("POST", "/api/ai/agent/title", model.CheckAuth, model.CheckAdminRole, agentChatTitle)
 
 	ginServer.Handle("POST", "/api/petal/loadPetals", model.CheckAuth, loadPetals)
 	ginServer.Handle("POST", "/api/petal/setPetalEnabled", model.CheckAuth, model.CheckAdminRole, model.CheckReadonly, setPetalEnabled)

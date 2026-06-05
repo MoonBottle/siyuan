@@ -124,7 +124,9 @@ export class Preview {
                     if (actionCustom) {
                         actionCustom.click(type);
                     } else if ((type === "mp-wechat" || type === "zhihu" || type === "yuque")) {
-                        this.copyToX(this.element.lastElementChild.cloneNode(true) as HTMLElement, protyle, type);
+                        const tempElement = document.createElement("div");
+                        tempElement.appendChild(this.element.lastElementChild.cloneNode(true));
+                        this.copyToX(tempElement, protyle, type);
                     } else if (type === "desktop") {
                         previewElement.style.width = "";
                         previewElement.style.padding = protyle.wysiwyg.element.style.padding;
@@ -300,15 +302,31 @@ export class Preview {
         copyElement.querySelectorAll("code").forEach((item) => {
             item.style.backgroundImage = "none";
         });
+        const copyEditElement = copyElement.querySelector(".b3-typography") as HTMLElement;
+        if (copyEditElement.firstElementChild.tagName === "DIV") {
+            // 最后/第一个块是公式块时无法复制下来
+            copyElement.insertAdjacentHTML("afterbegin", "<p>&zwj;</p>");
+        }
+        if (copyEditElement.lastElementChild.tagName === "DIV") {
+            copyElement.insertAdjacentHTML("beforeend", "<p>&zwj;</p>");
+
+        }
         this.element.append(copyElement);
-        // 最后一个块是公式块时无法复制下来
-        copyElement.insertAdjacentHTML("beforeend", "<p>&zwj;</p>");
         let cloneRange;
         if (getSelection().rangeCount > 0) {
             cloneRange = getSelection().getRangeAt(0).cloneRange();
         }
         const range = copyElement.ownerDocument.createRange();
-        range.selectNodeContents(copyElement);
+        if (copyEditElement.firstElementChild.tagName === "DIV") {
+            range.setStart(copyElement.firstElementChild, 0);
+        } else {
+            range.setStartBefore(copyElement.firstElementChild);
+        }
+        if (copyEditElement.lastElementChild.tagName === "DIV") {
+            range.setEndBefore(copyElement.lastElementChild);
+        } else {
+            range.setEndAfter(copyElement.lastElementChild);
+        }
         focusByRange(range);
         document.execCommand("copy");
         this.element.lastElementChild.remove();
